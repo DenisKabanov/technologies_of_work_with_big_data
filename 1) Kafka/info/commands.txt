@@ -1,0 +1,19 @@
+Скачивание образа (начала требуется запустить Docker Desktop в качестве демона (просто с рабочего стола и выполнить вход в аккаунт)):
+docker pull bitnami/kafka
+
+Поднятие докера в виде демона (-d):
+docker-compose up -d
+
+Отключение докера:
+docker-compose down
+
+Запуск Producer-ов:
+/bin/python3
+python main.py
+c:/Users/User/anaconda3/envs/gpu/python main.py
+c:/Users/User/anaconda3/envs/gpu/python producer_data.py
+
+Запуск Consumer-ов:
+streamlit run consumers.py
+c:/Users/User/anaconda3/envs/gpu/python -m streamlit run consumers.py
+c:/Users/User/anaconda3/envs/gpu/python consumer_processor.py

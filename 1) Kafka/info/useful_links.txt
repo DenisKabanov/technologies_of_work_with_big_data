@@ -1,0 +1,2 @@
+Мануал по Kafka в Docker: https://hub.docker.com/r/bitnami/kafka
+Подробный мануал по Kafka: https://github.com/bitnami/containers/blob/main/bitnami/kafka/README.md
