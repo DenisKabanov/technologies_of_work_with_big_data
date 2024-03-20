@@ -3,13 +3,13 @@ version: "3" # файл docker-compose должен начинаться с те
 
 # docker-composes работает с сервисами, 1 сервис = 1 контейнер (сервисом может быть клиент, сервер, сервер баз данных...)
 services: # раздел, в котором описаны сервисы
-  kafka: # названием сервиса (контейнера), может быть любым
+  kafka-broker-0: # названием сервиса (контейнера), может быть любым
     hostname: 'kafka' # имя хоста для контейнера
     image: 'bitnami/kafka:latest' # image для докера (определяет, что будет поддерживать в докере)
     ports: # порты, с которыми будет работать сервис (для обращения к сервису за пределами контейнера с помощью перенаправления указанных портов на порт компьютера (не докера))
       # формат записи <порт компьютера>:<порт контейнера>
-      - '9092:9092' # внутренний (internal) порт?
-      - '9094:9094' # внешний (external) порт?
+      - '9092:9092' # внутренний (internal) порт
+      - '9094:9094' # внешний (external) порт
     environment: # переменные окружения для контейнера (разделитель — ',', а не '/')
       - KAFKA_CFG_NODE_ID=0 # уникальный идентификатор для Kafka узла (KAFKA_CFG_NODE_ID=<unique_id>)
       - KAFKA_CFG_PROCESS_ROLES=controller,broker # роли узла Kafka
@@ -19,5 +19,25 @@ services: # раздел, в котором описаны сервисы
       # для доступа внетренних и внешних (internal and external ~ localhost и другие устройства) клиентов к Apache Kafka брокерам необходимо настроить по одному listener-у каждому типу клиентов
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094 # список Kafka listener-ов
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT # мапит каждого listener-а с протоколом безопасности Kafka
+      # PLAINTEXT — тип коммуникации, означающий что данные отправляются в виде обычного текста (без шифрования)
+
+
+  kafka-broker-1: # названием сервиса (контейнера), может быть любым
+    hostname: 'kafka' # имя хоста для контейнера
+    image: 'bitnami/kafka:latest' # image для докера (определяет, что будет поддерживать в докере)
+    ports: # порты, с которыми будет работать сервис (для обращения к сервису за пределами контейнера с помощью перенаправления указанных портов на порт компьютера (не докера))
+      # формат записи <порт компьютера>:<порт контейнера>
+      - '9095:9095' # внутренний (internal) порт
+      - '9097:9097' # внешний (external) порт
+    environment: # переменные окружения для контейнера (разделитель — ',', а не '/')
+      - KAFKA_CFG_NODE_ID=1 # уникальный идентификатор для Kafka узла (KAFKA_CFG_NODE_ID=<unique_id>)
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker # роли узла Kafka
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9096 # пары host:port, разделённые запятыми, каждая соответствует Kafka controller connection (KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@<your_host>:9093)
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+
+      # для доступа внетренних и внешних (internal and external ~ localhost и другие устройства) клиентов к Apache Kafka брокерам необходимо настроить по одному listener-у каждому типу клиентов
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9095,CONTROLLER://:9096,EXTERNAL://:9097 # список Kafka listener-ов
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9095,EXTERNAL://localhost:9097
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT # мапит каждого listener-а с протоколом безопасности Kafka
       # PLAINTEXT — тип коммуникации, означающий что данные отправляются в виде обычного текста (без шифрования)
