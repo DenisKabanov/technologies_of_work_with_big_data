@@ -2,12 +2,11 @@
 # файл для визуализации данных
 #===============================================================================
 
-from confluent_kafka import Consumer # Consumer в Kafka
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay # для оценки качества предсказаний
 import matplotlib.pyplot as plt # для построения графиков
 import streamlit as st # для Dashboard
 import pandas as pd # для удобной работы с датасетом
-import json # для сохранения, загрузки и работы с JSON данными
+from utils import Consumer_custom # кастомный Kafka Consumer
 from settings import * # импорт параметров
 
 
@@ -16,7 +15,7 @@ bootstrap_server_consume = 'localhost:9094' # url Kafka брокера, кото
 topic_consume = ['raw_data', 'ML_results'] # названия топиков, что отправляют Producer-ы (на них будет подписан Consumer)
 # topic_consume = ['raw_data'] # названия топиков, что отправляют Producer-ы (на них будет подписан Consumer)
 conf_consume = {'bootstrap.servers': bootstrap_server_consume, 'group.id': 'data_visualizers'} # конфиг для Consumer (group.id — группа для консьюмеров)
-consumer = Consumer(conf_consume) # создаём объект Kafka — Consumer
+consumer = Consumer_custom(conf_consume) # создаём объект Kafka — Consumer
 consumer.subscribe(topic_consume) # подписываем его на topic_consume (данные из этих топиков будет получать Consumer от брокеров(Producer-ов))
 
 
@@ -67,15 +66,13 @@ column_confus_new.title("New") # добавление заголовка к ко
 holder_confus_new = column_confus_new.empty() # пустой подконтейнер, что может вмещать только один объект (для самообновления графиков)
 
 while True: # бесконечный цикл
-    msg = consumer.poll(timeout=1000) # потребление одного сообщение (timeout — максимальное время ожидания сообщения в секундах, если сообщение не пришло по истечению таймера — вернёт None)
+    data, data_topic = consumer.get_message(timeout=1000) # потребление одного сообщение (timeout — максимальное время ожидания сообщения в секундах, если сообщение не пришло по истечению таймера или оно об ошибке существования топика — вернёт None, None)
 
-    if (msg is not None) and (msg.value() != b'Subscribed topic not available: raw_data: Broker: Unknown topic or partition') and (msg.value() != b'Subscribed topic not available: ML_results: Broker: Unknown topic or partition'): # если сообщение получено (и нет ошибки отсутствующего топика у Consumer-а)
-        data = json.loads(msg.value().decode('utf-8')) # полученное сообщение конвертируем bp ОЫЩТ обратно в utf-8 кодировку
-
+    if data is not None: # если нужное сообщение получено
         if VERBOSE: # если стоит флаг подробного вывода в консоль
-            print(f"Got message from topic '{msg.topic()}'") # вывод сообщения о получении данных
+            print(f"Got message from topic '{data_topic}'") # вывод сообщения о получении данных
 
-        if msg.topic() == "raw_data": # если topic сообщения это "raw_data" (пришли необработанные данные)
+        if data_topic == "raw_data": # если topic сообщения это "raw_data" (пришли необработанные данные)
             data = pd.DataFrame(data) # конвертируем полученный словарь в DataFrame
 
             st.session_state["operations count"].append(data.shape[0])
@@ -101,7 +98,7 @@ while True: # бесконечный цикл
             holder_genders.pyplot(fig_3) # выводим Matplotlib фигуру в Streamlit 
             plt.close() # отключает повторное отображение графика из-за наложения их в Matplotlib
 
-        elif msg.topic() == "ML_results": # если topic сообщения это "ML_results" (пришли результаты от модели)
+        elif data_topic == "ML_results": # если topic сообщения это "ML_results" (пришли результаты от модели)
             st.session_state["F1 weighted score"].append(data["f1"]) # добавляем пришедшие данные о F1 score в сессию
             holder_score.line_chart(st.session_state["F1 weighted score"]) # создаём линейный график на основе данных в словаре session_state
 
