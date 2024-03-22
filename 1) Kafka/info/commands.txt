@@ -1,14 +1,20 @@
 Скачивание образа (начала требуется запустить Docker Desktop в качестве демона (просто с рабочего стола и выполнить вход в аккаунт)):
 docker pull bitnami/kafka
 
-Поднятие докера в виде демона (-d):
+Поднятие docker-compose в виде демона (-d):
 docker-compose up -d
 
-Отключение докера:
+Вывод информации о контейнере (например — bitnami/kafka):
+docker inspect <created_docker_name>
+
+Отключение docker-compose:
 docker-compose down
 
-Запуск:
-c:/Users/User/anaconda3/envs/gpu/python generation.py
-c:/Users/User/anaconda3/envs/gpu/python processing.py
-c:/Users/User/anaconda3/envs/gpu/python ML_inference.py
-c:/Users/User/anaconda3/envs/gpu/python -m streamlit run visualization.py
+Запуск проекта (из корневой папки "./1) Kafka/"):
+python ./run.py
+
+Пример ручного запуска скриптов:
+c:/Users/User/anaconda3/envs/gpu/python ./scripts/generation.py
+c:/Users/User/anaconda3/envs/gpu/python ./scripts/processing.py
+c:/Users/User/anaconda3/envs/gpu/python ./scripts/ML_inference.py
+c:/Users/User/anaconda3/envs/gpu/python -m streamlit run ./scripts/visualization.py
