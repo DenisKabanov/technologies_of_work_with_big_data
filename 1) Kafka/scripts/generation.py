@@ -9,6 +9,9 @@ import json # для сохранения, загрузки и работы с J
 import time # для работы с временем
 from settings import * # импорт параметров
 
+import warnings # для обработки предупреждений
+warnings.simplefilter(action='ignore', category=FutureWarning) # игнорируем FutureWarning (от pandas за is_sparse is deprecated)
+
 
 # настройки Kafka
 bootstrap_server_produce = 'localhost:9094' # url Kafka брокера, который будет получать метаданные о Kafka cluster для организации сообщения (метаданные же сами состоят из: topics, их partitions, leader brokers для partitions)
@@ -30,6 +33,7 @@ while True: # бесконечный цикл
     producer_1.flush() # ожидание получения брокером сообщения
     producer_2.flush() # ожидание получения брокером сообщения
 
-    print(f"Producer 1 отправил данные в topic '{topic_produce}':\n {pd.DataFrame(data_1)}") # вывод сообщения об отправленных данных
-    print(f"Producer 2 отправил данные в topic '{topic_produce}':\n {pd.DataFrame(data_2)}") # вывод сообщения об отправленных данных
+    if VERBOSE: # если стоит флаг подробного вывода в консоль
+        print(f"Producer 1 из generation.py отправил данные в topic '{topic_produce}':\n {pd.DataFrame(data_1)}") # вывод сообщения об отправленных данных
+        print(f"Producer 2 из generation.py отправил данные в topic '{topic_produce}':\n {pd.DataFrame(data_2)}") # вывод сообщения об отправленных данных
     time.sleep(30 + random.uniform(-5.0, 5.0)) # ждём случайные n секунд

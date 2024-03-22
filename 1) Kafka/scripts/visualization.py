@@ -3,12 +3,13 @@
 #===============================================================================
 
 from confluent_kafka import Consumer # Consumer в Kafka
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay # для оценки качества предсказаний
 import matplotlib.pyplot as plt # для построения графиков
 import streamlit as st # для Dashboard
 import pandas as pd # для удобной работы с датасетом
 import json # для сохранения, загрузки и работы с JSON данными
+from settings import * # импорт параметров
 
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay # для оценки качества предсказаний
 
 # настройки Kafka
 bootstrap_server_consume = 'localhost:9094' # url Kafka брокера, который будет получать метаданные о Kafka cluster для организации сообщения (метаданные же сами состоят из: topics, их partitions, leader brokers для partitions) 
@@ -71,7 +72,8 @@ while True: # бесконечный цикл
     if (msg is not None) and (msg.value() != b'Subscribed topic not available: raw_data: Broker: Unknown topic or partition') and (msg.value() != b'Subscribed topic not available: ML_results: Broker: Unknown topic or partition'): # если сообщение получено (и нет ошибки отсутствующего топика у Consumer-а)
         data = json.loads(msg.value().decode('utf-8')) # полученное сообщение конвертируем bp ОЫЩТ обратно в utf-8 кодировку
 
-        print(f"Nessage from topic '{msg.topic()}'")
+        if VERBOSE: # если стоит флаг подробного вывода в консоль
+            print(f"Got message from topic '{msg.topic()}'") # вывод сообщения о получении данных
 
         if msg.topic() == "raw_data": # если topic сообщения это "raw_data" (пришли необработанные данные)
             data = pd.DataFrame(data) # конвертируем полученный словарь в DataFrame
@@ -100,16 +102,14 @@ while True: # бесконечный цикл
             plt.close() # отключает повторное отображение графика из-за наложения их в Matplotlib
 
         elif msg.topic() == "ML_results": # если topic сообщения это "ML_results" (пришли результаты от модели)
-            st.session_state["F1 weighted score"].append(data["f1"])
-            plt.ylim(0.95, 1) # лимит значений для оси OY
+            st.session_state["F1 weighted score"].append(data["f1"]) # добавляем пришедшие данные о F1 score в сессию
             holder_score.line_chart(st.session_state["F1 weighted score"]) # создаём линейный график на основе данных в словаре session_state
-            plt.close() # отключает повторное отображение графика из-за наложения их в Matplotlib
 
             fig_5 = ConfusionMatrixDisplay(st.session_state["confuse"], display_labels=range(st.session_state["confuse"].shape[0])).plot().figure_ # берём фигуру (figure_) отображения (plot) confusion_matrix с подписями на осях (display_labels = range(st.session_state["confuse"].shape[0]) — подписи от 0 до размерности таблицы-1 )
-            holder_confus_old.pyplot(fig_5)
+            holder_confus_old.pyplot(fig_5) # выводим Matplotlib фигуру в Streamlit
             plt.close() # отключает повторное отображение графика из-за наложения их в Matplotlib
 
             st.session_state["confuse"] = confusion_matrix(data["y_true"], data["y_pred"]) # обновляем confusion_matrix на основе пришедших значений
             fig_6 = ConfusionMatrixDisplay(st.session_state["confuse"], display_labels=range(st.session_state["confuse"].shape[0])).plot().figure_ # берём фигуру (figure_) отображения (plot) confusion_matrix с подписями на осях (display_labels = range(st.session_state["confuse"].shape[0]) — подписи от 0 до размерности таблицы-1 )
-            holder_confus_new.pyplot(fig_6)
+            holder_confus_new.pyplot(fig_6) # выводим Matplotlib фигуру в Streamlit
             plt.close() # отключает повторное отображение графика из-за наложения их в Matplotlib

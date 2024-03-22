@@ -9,6 +9,9 @@ import json # для сохранения, загрузки и работы с J
 import re # для регулярных выражений
 from settings import * # импорт параметров
 
+import warnings # для обработки предупреждений
+warnings.simplefilter(action='ignore', category=FutureWarning) # игнорируем FutureWarning (от pandas за is_sparse is deprecated)
+
 
 # настройки Kafka
 bootstrap_server_consume = 'localhost:9094' # url Kafka брокера, который будет получать метаданные о Kafka cluster для организации сообщения (метаданные же сами состоят из: topics, их partitions, leader brokers для partitions) 
@@ -49,4 +52,5 @@ while True: # бесконечный цикл
         producer.produce(topic_produce, key='1', value=json.dumps(data)) # отправляем данные брокеру (topic_produce — в какие топики отправлять сообщение, key — Message key, value — сообщение (json.dumps возвращает строку в формате JSON))
         producer.flush() # ожидание получения брокером сообщения
 
-        print(f"Producer отправил данные в topic '{topic_produce}':\n {pd.DataFrame(data)}") # вывод сообщения об отправленных данных
+        if VERBOSE: # если стоит флаг подробного вывода в консоль
+            print(f"Producer из processing.py отправил данные в topic '{topic_produce}':\n {pd.DataFrame(data)}") # вывод сообщения об отправленных данных

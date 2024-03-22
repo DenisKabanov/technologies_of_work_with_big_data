@@ -3,10 +3,9 @@
 #===============================================================================
 
 from confluent_kafka import Producer, Consumer # Producer и Consumer в Kafka
-import pandas as pd # для удобной работы с датасетом
+from sklearn.metrics import f1_score # для оценки качества предсказаний
 import pickle # для сохранения и загрузки объектов
 import json # для сохранения, загрузки и работы с JSON данными
-from sklearn.metrics import f1_score # для оценки качества предсказаний
 from settings import * # импорт параметров
 
 
@@ -40,4 +39,5 @@ while True: # бесконечный цикл
         producer.produce(topic_produce, key='1', value=json.dumps(results)) # отправляем данные брокеру (topic_produce — в какие топики отправлять сообщение, key — Message key, value — сообщение (json.dumps возвращает строку в формате JSON))
         producer.flush() # ожидание получения брокером сообщения
 
-        print(f"Producer отправил данные в topic '{topic_produce}':\n {results}") # вывод сообщения об отправленных данных
+        if VERBOSE: # если стоит флаг подробного вывода в консоль
+            print(f"Producer из ML_inference.py отправил данные в topic '{topic_produce}':\n {results}") # вывод сообщения об отправленных данных
