@@ -41,8 +41,8 @@ while True: # бесконечный цикл
         for column in ["merchant", "category", "gender", "job"]: # идём по столбцам, что нужно сконвертировать из строк в числа
             data[column] = encoders[column].transform(data[column]) # конвертируем строковые столбцы в числовые (с использованием предобученного LabelEncoder-а)
         
-        data_y = data["is_fraud"].to_numpy().tolist() # берём таргеты и конвертируем их сначала в np.array, а потом в list (так как в .produce требуются простые объекты и он не умеет работать с DataFrame и np.array))
-        data_X = data.drop(columns=["is_fraud"]).to_numpy().tolist() # берём данные (без столбца таргета) и конвертируем их сначала в np.array, а потом в list (так как в .produce требуются простые объекты и он не умеет работать с DataFrame и np.array))
+        data_y = data["is_fraud"].to_numpy().tolist() # берём таргеты и конвертируем их сначала в np.array, а потом в list (так как в .produce (send_message) требуются простые объекты и он не умеет работать с DataFrame и np.array))
+        data_X = data.drop(columns=["is_fraud"]).to_numpy().tolist() # берём данные (без столбца таргета) и конвертируем их сначала в np.array, а потом в list (так как в .produce (send_message) требуются простые объекты и он не умеет работать с DataFrame и np.array))
         data = {"X": data_X, "y_true": data_y} # собираем словарь из списков (list): data_X — фич, data_y — таргетов, что будем отправлять
 
         producer.send_message(topic_produce, key='1', value=data) # отправляем данные брокеру и ожидаем получения им сообщения (topic_produce — в какие топики отправлять сообщение, key — Message key, value — данные, что нужно отправить)
