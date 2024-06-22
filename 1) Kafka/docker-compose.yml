@@ -15,6 +15,7 @@ services: # раздел, в котором описаны сервисы
       - KAFKA_CFG_PROCESS_ROLES=controller,broker # роли узла Kafka
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093 # пары host:port, разделённые запятыми, каждая соответствует Kafka controller connection (KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@<your_host>:9093)
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_NUM_PARTITIONS=3 # число партиций (разбиений данных на части)
 
       # для доступа внетренних и внешних (internal and external ~ localhost и другие устройства) клиентов к Apache Kafka брокерам необходимо настроить по одному listener-у каждому типу клиентов
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094 # список Kafka listener-ов
@@ -35,6 +36,7 @@ services: # раздел, в котором описаны сервисы
       - KAFKA_CFG_PROCESS_ROLES=controller,broker # роли узла Kafka
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9096 # пары host:port, разделённые запятыми, каждая соответствует Kafka controller connection (KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@<your_host>:9093)
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_NUM_PARTITIONS=3 # число партиций (разбиений данных на части)
 
       # для доступа внетренних и внешних (internal and external ~ localhost и другие устройства) клиентов к Apache Kafka брокерам необходимо настроить по одному listener-у каждому типу клиентов
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9095,CONTROLLER://:9096,EXTERNAL://:9097 # список Kafka listener-ов
