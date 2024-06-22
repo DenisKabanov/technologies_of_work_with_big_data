@@ -1,0 +1,2 @@
+В этой папке должен быть изначальный датасет, но он имеет слишком большой размер для github, поэтому вот ссылка на него на Kaggle:
+* fraud test.csv: https://www.kaggle.com/datasets/kelvinkelue/credit-card-fraud-prediction/

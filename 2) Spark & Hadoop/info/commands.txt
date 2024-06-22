@@ -1,0 +1,70 @@
+Запуск контейнеров:
+docker-compose up
+С указанием специального файла (отличного от docker-compose.yml):
+docker-compose -f <YML_FILE_NAME> up
+Например:
+docker-compose -f docker-compose.yml up
+
+Вывод запущенных процессов:
+docker ps
+Будет что-то типо:
+CONTAINER ID   IMAGE                                             COMMAND                  CREATED          STATUS                    PORTS                                            NAMES
+471efef13d66   bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8   "/entrypoint.sh /run…"   21 minutes ago   Up 21 minutes (healthy)   9864/tcp                                         datanode
+e5eab584fb4b   bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8   "/entrypoint.sh /run…"   21 minutes ago   Up 21 minutes (healthy)   0.0.0.0:9000->9000/tcp, 0.0.0.0:9870->9870/tcp   namenode
+
+Отправка файла в HDFS"
+docker cp <PATH_TO_FILE> <CONTAINER NAME>:<DIR_TO_SAVE>
+Например:
+docker cp ./data/data_simple.csv namenode:/
+
+Просмотр томов:
+docker volume inspect <VOLUME_NAME>
+Например:
+docker volume inspect hadoop
+
+Подключение к запущенному докер-контейнеру:
+docker exec -it namenode bash
+
+    Создание папок в HDFS:
+    hdfs dfs -mkdir /data/
+
+    Отправка данных в HDFS (что уже лежат в контейнере):
+    hdfs dfs -put <FILE_TO_TRANSFER> <HDFS_STORE_DIR>
+    Например:
+    hdfs dfs -put /data_simple.csv /data/
+    Или, с указанием размера блока:
+    hdfs dfs -D dfs.block.size=32M -put /data_simple.csv /data/
+
+    Выставление ограничение на используемую память:
+    hdfs dfsadmin -setSpaceQuota <MEMORY> <PATH>
+    Например:
+    hdfs dfsadmin -setSpaceQuota 5g /
+
+    Вывод основных статистик/параметров HDFS:
+    hdfs dfsadmin -report
+
+    Вывод значения параметра safemode в HDFS:
+    hdfs dfsadmin -safemode get
+    Вывод:
+    Safe mode is ON или OFF
+
+    Изменение safemode в HDFS на OFF:
+    hdfs dfsadmin -safemode leave
+
+Копирование данных из контейнера на host устройство:
+docker cp <CONTAINER_NAME>:<PATH_TO_FILE_ON_CONTAINER> <PATH_TO_FILE_ON_HOST>
+Например:
+docker cp spark-master:/log.txt ./logs/log_DataNodes_3_opt_True.txt
+
+Выход из контейнера (или любого вложенного терминала):
+exit
+
+Отключение docker-compose (всех указанных в файле контейнеров):
+docker-compose down
+
+Ссылки для мониторинга Hadoop и Spark:
+http://localhost:9870
+http://localhost:9870/explorer.html#/
+http://localhost:8080/
+http://localhost:8081/
+http://localhost:4040/jobs/
