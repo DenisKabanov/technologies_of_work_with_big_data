@@ -5,7 +5,6 @@
 **Используемые языки:**
 * Python
 * Bash (Shell)
-* 
 
 **Содержание работ:**
 1) Kafka с применением Docker и Streamlit.
